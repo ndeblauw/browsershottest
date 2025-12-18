@@ -14,9 +14,9 @@ class BrowsershotController extends Controller
     public function testImage(Request $request)
     {
         $text = $request->query('text', 'Default Text');
-        
+
         return view('testimage', [
-            'text' => $text
+            'text' => $text,
         ]);
     }
 
@@ -27,15 +27,15 @@ class BrowsershotController extends Controller
     public function screenshot(Request $request)
     {
         $text = $request->query('text', 'test');
-        
+
         // Read and encode background image as base64
         $backgroundPath = public_path('background.png');
         $backgroundData = base64_encode(file_get_contents($backgroundPath));
         $backgroundUrl = "data:image/png;base64,{$backgroundData}";
-        
+
         // Escape text to prevent XSS
         $escapedText = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
-        
+
         $html = <<<HTML
 <!DOCTYPE html>
 <html lang="en">
@@ -80,14 +80,14 @@ class BrowsershotController extends Controller
 </body>
 </html>
 HTML;
-        
+
         // Create the screenshot using Browsershot with HTML
         $screenshot = Browsershot::html($html)
-            ->setChromePath('/usr/bin/google-chrome')
+            // ->setChromePath('/usr/bin/google-chrome')
             ->windowSize(800, 600)
             ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
             ->screenshot();
-        
+
         return response($screenshot)
             ->header('Content-Type', 'image/png')
             ->header('Content-Disposition', 'inline; filename="screenshot.png"');
