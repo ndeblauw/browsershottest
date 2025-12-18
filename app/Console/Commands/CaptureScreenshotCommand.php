@@ -29,9 +29,20 @@ class CaptureScreenshotCommand extends Command
         $text = $this->argument('text');
         $outputPath = $this->option('output');
         
-        // Ensure output path is absolute
+        // Ensure output path is safe and absolute
         if (!str_starts_with($outputPath, '/')) {
-            $outputPath = storage_path('app/public/' . $outputPath);
+            // Sanitize filename to prevent directory traversal
+            $safeFilename = basename($outputPath);
+            $outputPath = storage_path('app/public/' . $safeFilename);
+        } else {
+            // Validate absolute path to prevent directory traversal
+            $realPath = realpath(dirname($outputPath));
+            if ($realPath === false) {
+                $this->error("Invalid output directory");
+                return Command::FAILURE;
+            }
+            $safeFilename = basename($outputPath);
+            $outputPath = $realPath . '/' . $safeFilename;
         }
         
         // Ensure directory exists
@@ -46,6 +57,9 @@ class CaptureScreenshotCommand extends Command
         $backgroundPath = public_path('background.png');
         $backgroundData = base64_encode(file_get_contents($backgroundPath));
         $backgroundUrl = "data:image/png;base64,{$backgroundData}";
+        
+        // Escape text to prevent XSS
+        $escapedText = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
         
         $html = <<<HTML
 <!DOCTYPE html>
@@ -86,7 +100,7 @@ class CaptureScreenshotCommand extends Command
 </head>
 <body>
     <div class="text-overlay">
-        {$text}
+        {$escapedText}
     </div>
 </body>
 </html>

@@ -33,6 +33,9 @@ class BrowsershotController extends Controller
         $backgroundData = base64_encode(file_get_contents($backgroundPath));
         $backgroundUrl = "data:image/png;base64,{$backgroundData}";
         
+        // Escape text to prevent XSS
+        $escapedText = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        
         $html = <<<HTML
 <!DOCTYPE html>
 <html lang="en">
@@ -72,7 +75,7 @@ class BrowsershotController extends Controller
 </head>
 <body>
     <div class="text-overlay">
-        {$text}
+        {$escapedText}
     </div>
 </body>
 </html>
