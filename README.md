@@ -1,58 +1,256 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Browsershot Test Application
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel application demonstrating the integration of [Spatie Browsershot](https://github.com/spatie/browsershot) for capturing screenshots of web pages. This project showcases both web-based and command-line screenshot generation capabilities.
 
-## About Laravel
+## About This Project
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This application provides a practical example of using Browsershot to generate screenshots programmatically. It includes:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Web Routes**: Display and capture screenshots via HTTP endpoints
+- **Console Commands**: Generate screenshots from the command line
+- **Automated Testing**: Comprehensive test suite for all features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Prerequisites
 
-## Learning Laravel
+Before installing this application, ensure you have the following installed:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **PHP 8.2 or higher**
+- **Composer** (PHP dependency manager)
+- **Node.js and npm** (for Puppeteer)
+- **Chrome or Chromium browser**
+- **SQLite** (for the database)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Installing Chrome/Chromium
 
-## Laravel Sponsors
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install -y chromium-browser
+# OR
+sudo apt-get install -y google-chrome-stable
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**macOS:**
+```bash
+brew install --cask google-chrome
+```
 
-### Premium Partners
+**Verify Installation:**
+```bash
+which google-chrome chromium-browser chromium
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Installation
 
-## Contributing
+1. **Clone the repository:**
+```bash
+git clone https://github.com/ndeblauw/browsershottest.git
+cd browsershottest
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. **Install dependencies and set up the application:**
+```bash
+composer setup
+```
 
-## Code of Conduct
+This command will:
+- Install PHP dependencies
+- Copy `.env.example` to `.env`
+- Generate application key
+- Run database migrations
+- Install npm dependencies
+- Build frontend assets
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. **Create the storage directory for screenshots:**
+```bash
+mkdir -p storage/app/public
+chmod -R 775 storage
+```
 
-## Security Vulnerabilities
+4. **Optional: Link storage to public directory (for web access):**
+```bash
+php artisan storage:link
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Usage
+
+### Starting the Application
+
+Start the development server:
+```bash
+php artisan serve
+```
+
+Or use the full development environment (includes queue worker, logs, and Vite):
+```bash
+composer dev
+```
+
+The application will be available at `http://localhost:8000`
+
+### Web Route Test
+
+#### 1. Test Image Route (`/testimage`)
+
+Displays a 800x600 pixel page with text overlay on a background image.
+
+**Access:**
+```bash
+# In browser
+http://localhost:8000/testimage
+
+# With custom text
+http://localhost:8000/testimage?text=Your+Text+Here
+```
+
+**Using curl:**
+```bash
+curl http://localhost:8000/testimage?text=Hello+World
+```
+
+**Parameters:**
+- `text` (optional): The text to display. Defaults to "Default Text"
+
+#### 2. Screenshot Route (`/screenshot`)
+
+Generates and returns a PNG screenshot of the test image with the provided text.
+
+**Access:**
+```bash
+# View in browser
+http://localhost:8000/screenshot?text=MyScreenshot
+
+# Save to file using curl
+curl http://localhost:8000/screenshot?text=MyText -o screenshot.png
+```
+
+**Parameters:**
+- `text` (optional): The text to include in the screenshot. Defaults to "test"
+
+**Output:**
+- PNG image (800x600 pixels)
+- Content-Type: `image/png`
+
+### Console Test
+
+The `screenshot:capture` artisan command captures screenshots from the command line and saves them to the storage directory.
+
+**Usage:**
+```bash
+php artisan screenshot:capture [text] [--output=filename.png]
+```
+
+**Arguments:**
+- `text`: The text to display in the screenshot (default: "test")
+
+**Options:**
+- `--output`: Output filename (default: "screenshot.png")
+  - **Relative path**: Saves to `storage/app/public/[filename]`
+  - **Absolute path**: Saves to the specified location
+
+**Examples:**
+
+```bash
+# Basic usage (saves to storage/app/public/screenshot.png)
+php artisan screenshot:capture "Hello World"
+
+# Save with custom filename in storage
+php artisan screenshot:capture "Demo" --output=demo-screenshot.png
+
+# Save to absolute path
+php artisan screenshot:capture "Test" --output=/tmp/my-screenshot.png
+```
+
+**Storage Location:**
+
+Screenshots saved with relative paths are stored in:
+```
+storage/app/public/
+```
+
+You can access these files:
+- **Directly**: Navigate to `storage/app/public/` in your filesystem
+- **Via symlink** (if you ran `php artisan storage:link`): `http://localhost:8000/storage/[filename]`
+
+**View saved screenshots:**
+```bash
+# List all screenshots in storage
+ls -lh storage/app/public/
+
+# View a specific screenshot
+open storage/app/public/screenshot.png  # macOS
+xdg-open storage/app/public/screenshot.png  # Linux
+```
+
+## Testing
+
+Run the full test suite:
+```bash
+composer test
+# OR
+php artisan test
+```
+
+Run specific Browsershot tests:
+```bash
+php artisan test --filter=BrowsershotTest
+```
+
+## How It Works
+
+1. **HTML Generation**: The application generates HTML with text overlay and a base64-encoded background image
+2. **Browsershot Processing**: Browsershot uses Puppeteer and Chrome/Chromium to render the HTML
+3. **Screenshot Capture**: The rendered page is captured as a PNG image at 800x600 pixels
+4. **Response/Storage**: The image is returned directly (web route) or saved to file (command)
+
+### Key Features
+
+- Uses system Chrome/Chromium for rendering
+- Base64-encoded background image for consistent rendering
+- Configurable dimensions (800x600 pixels)
+- HTML escaping for security (prevents XSS attacks)
+- Comprehensive test coverage
+
+## Troubleshooting
+
+### "Chrome not found" error
+
+Make sure Chrome/Chromium is installed and in your PATH:
+```bash
+which google-chrome chromium-browser chromium
+```
+
+If installed but not found, update the Chrome path in the code or create a symlink.
+
+### Timeout errors
+
+Browsershot may timeout on slower systems. If this happens, you can increase the timeout in the controller/command.
+
+### Permission errors
+
+Ensure the storage directory is writable:
+```bash
+chmod -R 775 storage
+chown -R $USER:www-data storage  # Linux
+```
+
+### Puppeteer not found
+
+If you get errors about Puppeteer, ensure npm dependencies are installed:
+```bash
+npm install
+```
+
+## Security Considerations
+
+- Text input is properly escaped using `htmlspecialchars()` to prevent XSS attacks
+- Chrome runs with security flags: `--no-sandbox`, `--disable-setuid-sandbox`
+- Output paths are validated to prevent directory traversal attacks
+- Screenshot generation happens server-side with controlled HTML
+
+## Additional Documentation
+
+For more detailed technical documentation, see [BROWSERSHOT_USAGE.md](BROWSERSHOT_USAGE.md).
 
 ## License
 
