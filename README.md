@@ -231,7 +231,9 @@ Browsershot may timeout on slower systems. If this happens, you can increase the
 Ensure the storage directory is writable:
 ```bash
 chmod -R 775 storage
-chown -R $USER:www-data storage  # Linux
+
+# Optional: Set proper ownership (Linux only)
+chown -R $USER:www-data storage
 ```
 
 ### Puppeteer not found
