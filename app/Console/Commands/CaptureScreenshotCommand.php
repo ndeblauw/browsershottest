@@ -109,7 +109,7 @@ HTML;
         try {
             // Create the screenshot using Browsershot with HTML
             Browsershot::html($html)
-                ->setChromePath('/usr/bin/google-chrome')
+                //->setChromePath('/usr/bin/google-chrome')
                 ->windowSize(800, 600)
                 ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
                 ->save($outputPath);
