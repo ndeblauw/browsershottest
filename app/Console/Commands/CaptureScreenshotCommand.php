@@ -28,7 +28,7 @@ class CaptureScreenshotCommand extends Command
     {
         $text = $this->argument('text');
         $outputPath = $this->option('output');
-        
+
         // Ensure output path is safe and absolute
         if (!str_starts_with($outputPath, '/')) {
             // Sanitize filename to prevent directory traversal
@@ -44,20 +44,20 @@ class CaptureScreenshotCommand extends Command
             $safeFilename = basename($outputPath);
             $outputPath = $realPath . '/' . $safeFilename;
         }
-        
+
         // Ensure directory exists
         $directory = dirname($outputPath);
         if (!is_dir($directory)) {
             mkdir($directory, 0755, true);
         }
-        
+
         $this->info("Capturing screenshot with text: {$text}");
-        
+
         // Read and encode background image as base64
         $backgroundPath = public_path('background.png');
         $backgroundData = base64_encode(file_get_contents($backgroundPath));
         $backgroundUrl = "data:image/png;base64,{$backgroundData}";
-        
+
         // Escape text to prevent XSS
         $escapedText = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 
@@ -105,17 +105,17 @@ class CaptureScreenshotCommand extends Command
 </body>
 </html>
 HTML;
-        
+
         try {
             // Create the screenshot using Browsershot with HTML
             Browsershot::html($html)
-                ->setChromePath('/usr/bin/google-chrome')
+                ->setChromePath('/snap/bin/chromium')
                 ->windowSize(800, 600)
                 ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'])
                 ->save($outputPath);
-            
+
             $this->info("✓ Screenshot saved to: {$outputPath}");
-            
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $this->error("Failed to capture screenshot: " . $e->getMessage());
